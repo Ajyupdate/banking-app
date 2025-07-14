@@ -35,6 +35,10 @@ class AuthController {
       });
     } catch (error) {
       logger.error(`AuthController.register error: ${error.message}`);
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
       next(error);
     }
   }
