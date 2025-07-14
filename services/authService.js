@@ -29,6 +29,7 @@ class AuthService {
     try {
       // Check if user exists
       const user = await User.findByEmail(email);
+      console.log(user, 32);
       if (!user) {
         throw new Error("Invalid credentials");
       }

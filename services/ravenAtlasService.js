@@ -21,8 +21,6 @@ class RavenAtlasService {
         ...transferData,
       };
 
-      console.log(this.apiKey, "here 24");
-      console.log(this.baseURL);
       const response = await axios.post(
         `${this.baseURL}/transfers/create`,
         payload,
@@ -30,17 +28,13 @@ class RavenAtlasService {
           headers: this.headers,
         }
       );
-      console.log(response, "response 27");
 
       return response.data;
     } catch (error) {
       logger.error(
         `RavenAtlasService.initiateTransfer error: ${error.message}`
       );
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+
       if (error.response) {
         logger.error(`Response data: ${JSON.stringify(error.response.data)}`);
       }

@@ -5,7 +5,9 @@ const logger = require("../utils/logger");
 class TransferController {
   async initiateTransfer(req, res, next) {
     try {
+      console.log(req.user, "req.user 8");
       const userId = req.user.id;
+
       const {
         accountId,
         amount,
@@ -33,14 +35,22 @@ class TransferController {
         data: transfer,
       });
     } catch (error) {
+      if (error.response && error.response.data) {
+        return res.status(error.response.status || 400).json({
+          success: false,
+          message: error.response.data.message || "Transfer failed",
+          details: error.response.data,
+        });
+      }
+
+      // For other types of errors
       logger.error(
         `TransferController.initiateTransfer error: ${error.message}`
       );
-      res.status(500).json({
+      res.status(400).json({
         success: false,
-        message: error.message,
+        message: error.message || "Transfer failed",
       });
-      next(error);
     }
   }
 

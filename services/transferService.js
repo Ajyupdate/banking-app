@@ -7,9 +7,12 @@ const logger = require("../utils/logger");
 
 class TransferService {
   async initiateTransfer(userId, accountId, transferData) {
+    let transfer; // Declare transfer at the function scope level
+
     try {
       // Verify account exists and belongs to user
       const account = await Account.findById(accountId);
+      // console.log(account, 15);
       if (!account || account.user_id !== userId) {
         throw new Error("Account not found or does not belong to user");
       }
@@ -20,7 +23,8 @@ class TransferService {
       }
 
       // Create transfer record
-      const transfer = await Transfer.create({
+      transfer = await Transfer.create({
+        // Now assigning to the higher-scoped variable
         account_id: accountId,
         amount: transferData.amount,
         recipient_name: transferData.recipient_name,
@@ -31,8 +35,7 @@ class TransferService {
         status: "pending",
       });
 
-      console.log(transfer, 34);
-
+      // Rest of your code remains the same...
       // Create transaction record
       const transaction = await Transaction.create({
         user_id: userId,
@@ -50,7 +53,6 @@ class TransferService {
         narration:
           transfer.narration || `Transfer to ${transfer.recipient_name}`,
       });
-      console.log("after transaction 53");
 
       // Initiate transfer with Raven Atlas
       const ravenResponse = await RavenAtlasService.initiateTransfer({
@@ -60,7 +62,6 @@ class TransferService {
         narration: transferData.narration,
         reference: transfer.reference,
       });
-      console.log("after ravenResponse 63");
 
       // Update transfer status based on Raven response
       if (ravenResponse.status === "success") {
@@ -77,7 +78,7 @@ class TransferService {
     } catch (error) {
       logger.error(`TransferService.initiateTransfer error: ${error.message}`);
 
-      // If transfer was created but failed, update status
+      // Now transfer is accessible here
       if (transfer && transfer.reference) {
         await Transfer.updateStatus(transfer.reference, "failed");
         await Transaction.updateStatus(transfer.reference, "failed");
